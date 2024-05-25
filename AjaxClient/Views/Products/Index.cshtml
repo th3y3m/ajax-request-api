@@ -1,0 +1,77 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model IEnumerable<BusinessObjects.Product>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="container-fluid">
+    <h2>Product List</h2>
+    <table class="table table-sm table-striped table-bordered m-2">
+        <thead>
+            <tr>
+                <th>ProductID</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        ShowAllProducts();
+
+        function ShowAllProducts() {
+            $("table tbody").html("");
+            $.ajax({
+                url: "https://localhost:7126/api/Products",
+                type: "get",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result, status, xhr) {
+                    $.each(result, function (index, value) {
+                        var row = $("<tr>");
+                        row.append($("<td>").html(value["productId"]));
+                        row.append($("<td>").html(value["productName"]));
+                        row.append($("<td>").html(value["unitsInStock"]));
+                        row.append($("<td>").html(value["unitPrice"]));
+                        row.append($("<td>").html("<a href=\"?id=" + value["productId"] + "\"><img src=\"icon/edit.png\"/></a>"));
+                        row.append($("<td>").html("<img class=\"delete\" src=\"icon/close.png\" />"));
+                        $("tbody").append(row);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        $("table").on("click", ".delete", function () {
+            var productId = $(this).parents("tr").find("td:nth-child(1)").text();
+
+            $.ajax({
+                url: "https://localhost:7126/api/Products/" + productId,
+                type: "delete",
+                contentType: "application/json",
+                success: function (result, status, xhr) {
+                    ShowAllProducts();
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr);
+                    console.log("Error ");
+                }
+            });
+        });
+    });
+</script>
